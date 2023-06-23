@@ -31,3 +31,8 @@ async def end_speech(message: types.Message):
     print('Закончить доклад')
     await message.answer('Закончить доклад')
 
+@dp.message_handler()
+async def get_user_question(message: types.Message):
+    print('Вопрос от слушателя')
+    await message.answer('Вопрос от слушателя')
+
