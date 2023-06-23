@@ -1,5 +1,5 @@
 from aiogram import types
-from aiogram.types import KeyboardButton, ReplyKeyboardMarkup
+from aiogram.types import KeyboardButton, ReplyKeyboardMarkup, InlineKeyboardButton, InlineKeyboardMarkup
 from aiogram import Bot, Dispatcher, executor, types
 from aiogram.dispatcher.filters import Text
 from dispatcher import dp, bot
@@ -33,6 +33,9 @@ async def end_speech(message: types.Message):
 
 @dp.message_handler()
 async def get_user_question(message: types.Message):
+    answer_good = InlineKeyboardButton(text='👍', callback_data=message.text)
+    answer_bad = InlineKeyboardButton(text='👎', callback_data=message.text)
+    keyboard = InlineKeyboardMarkup().row(answer_good, answer_bad)
     print('Вопрос от слушателя')
-    await message.answer('Вопрос от слушателя')
+    await message.reply('Вопрос от слушателя', reply_markup=keyboard)
 
