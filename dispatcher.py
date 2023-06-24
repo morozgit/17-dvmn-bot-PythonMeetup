@@ -2,6 +2,7 @@ import logging
 import os
 
 from aiogram import Bot, Dispatcher
+from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from dotenv import load_dotenv
 
 # Configure logging
@@ -18,5 +19,6 @@ load_dotenv()
 telegram_token = os.environ["TELEGRAM_TOKEN"]
 
 # init
-bot = Bot(token=telegram_token, parse_mode="HTML")
-dp = Dispatcher(bot)
+bot: Bot = Bot(token=telegram_token, parse_mode="HTML")
+storage = MemoryStorage()
+dp: Dispatcher = Dispatcher(bot, storage=storage)

@@ -14,7 +14,7 @@ async def send_welcome(message: types.Message):
         BotDB.add_user(message.from_user.id)
 
     user_is_org = True
-    user_id_speaker = True
+    user_id_speaker = False
     user_is_listener = False
     if user_is_org:
         await organizer_start_cmd_handler(message)

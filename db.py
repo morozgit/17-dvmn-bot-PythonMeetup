@@ -1,5 +1,7 @@
 import sqlite3
 
+import aiosqlite
+
 
 class BotDB:
 
@@ -36,6 +38,14 @@ class BotDB:
     def add_user(self, user_id):
         """Добавляем юзера в базу"""
         self.cursor.execute("INSERT INTO `users` (`user_telegram_id`) VALUES (?)", (user_id,))
+        return self.conn.commit()
+
+    def get_active_meetups(self):
+        result = self.cursor.execute("SELECT `id`, `name` FROM `meetups` WHERE `is_active` = ?", (1,))
+        return bool(len(result.fetchall()))
+
+    def add_new_meetup(self, name):
+        result = self.cursor.execute("INSERT INTO `meetups` (`name`, `is_active`) VALUES (?, 1)", (name,))
         return self.conn.commit()
 
     def close(self):

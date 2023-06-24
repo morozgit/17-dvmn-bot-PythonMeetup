@@ -1,11 +1,10 @@
-from aiogram import executor
+from aiogram.utils import executor
 
 from db import BotDB
-from dispatcher import dp
+from dispatcher import dp, bot
 import handlers
 
 BotDB = BotDB('meetup.db')
-
 
 def main():
     """Start the bot."""

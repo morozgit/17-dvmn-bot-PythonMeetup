@@ -32,7 +32,7 @@ async def end_speech(message: types.Message):
     print('Закончить доклад')
     await message.answer('Доклад закончен')
 
-@dp.message_handler()
+#@dp.message_handler()
 async def get_user_question(message: types.Message):
     answer_good = InlineKeyboardButton(text='✅', callback_data='✅')
     keyboard = InlineKeyboardMarkup().row(answer_good)
