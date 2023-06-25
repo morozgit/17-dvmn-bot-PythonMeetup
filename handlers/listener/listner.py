@@ -4,7 +4,7 @@ from aiogram.dispatcher.filters.state import StatesGroup, State
 from aiogram.types import Message, ReplyKeyboardRemove
 
 from database.methods.create import create_user, add_question
-from database.methods.get import get_user_by_telegram_id, get_meetup_program
+from database.methods.get import get_user_by_telegram_id, get_meetup_program, get_current_speaker
 from dispatcher import dp
 
 
@@ -62,8 +62,14 @@ async def process_name(message: Message, state: FSMContext):
     async with state.proxy() as data:
         data['question'] = message.text
 
-    add_question(data['question'])
+
+    current_speaker = get_current_speaker()
+    add_question(current_speaker, data['question'])
     await state.finish()
+    await message.bot.send_message(
+        current_speaker,
+        f"Получен вопрос от @{message.from_user.username}\n{data['question']}"
+    )
     await message.reply("Спасибо! Ваш вопрос отправлен текущему докладчику!")
 
 

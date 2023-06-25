@@ -1,7 +1,7 @@
 import sqlalchemy.exc
 
 from database.main import Database
-from database.methods.get import get_current_speaker
+from database.methods.get import get_current_speaker, get_user_by_telegram_id
 from database.models import User, Session, Meetup, Question
 
 
@@ -20,10 +20,10 @@ def create_session(user: User, user_bot_session: str) -> None:
     session.commit()
 
 
-def add_question(question: str, is_private = 0):
-    current_speaker = get_current_speaker()
+def add_question(speaker_id: int, question: str, is_private = 0):
+    current_speaker = get_user_by_telegram_id(speaker_id)
     if current_speaker:
         session = Database().session
-        session.add(Question(speaker_id=current_speaker, question=question, is_private=is_private))
+        session.add(Question(speaker_id=speaker_id, question=question, is_private=is_private))
         session.commit()
 
