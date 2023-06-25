@@ -21,7 +21,6 @@ class IsOrg(Filter):
 
 class IsSpeaker(Filter):
     key = "is_speaker"
-
     async def check(self, message: Message) -> bool:
         return is_speaker(message.from_user.id)
 
