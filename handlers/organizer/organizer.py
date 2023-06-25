@@ -5,17 +5,15 @@ from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message, C
 
 from bot import BotDB
 from dispatcher import dp, bot
+from filters.main import IsOrg
 
-
-state: dict = {
-    'create_meetup': False
-}
 
 # States
 class CreateMeetup(StatesGroup):
     name = State()  # Will be represented in storage as 'Form:name'
 
-@dp.message_handler(commands=['start_organizer'])
+
+@dp.message_handler(IsOrg(), commands=['start'])
 async def organizer_start_cmd_handler(message: Message):
     # if (not BotDB.user_exists(message.from_user.id)):
     #     BotDB.add_user(message.from_user.id)
@@ -59,6 +57,7 @@ async def organizer_start_stop_meeting(query: CallbackQuery):
         await query.message.answer(text="Нет активных митапов. \nВведи название нового мероприятия:")
     await query.answer()
 
+
 @dp.message_handler(state=CreateMeetup.name)
 async def organizer_create_meetup(message: Message, state: FSMContext):
     async with state.proxy() as data:
@@ -66,4 +65,3 @@ async def organizer_create_meetup(message: Message, state: FSMContext):
     await state.finish()
     BotDB.add_new_meetup(message.text)
     await message.answer(text=f"Создано новое мероприятие {message.text}")
-
