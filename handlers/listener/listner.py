@@ -6,6 +6,7 @@ from aiogram.types import Message, ReplyKeyboardRemove
 from database.methods.create import create_user, add_question
 from database.methods.get import get_user_by_telegram_id, get_meetup_program, get_current_speaker
 from dispatcher import dp
+from filters.main import IsListner
 
 
 # States
@@ -13,7 +14,7 @@ class SpeakerQuestion(StatesGroup):
     question = State()  # Will be represented in storage as 'Form:name'
 
 
-@dp.message_handler(commands=['start'])
+@dp.message_handler(IsListner(), commands=['start'])
 async def organizer_start_cmd_handler(message: Message):
     if not get_user_by_telegram_id(message.from_user.id):
         create_user(message.from_user.id)
@@ -28,7 +29,7 @@ async def organizer_start_cmd_handler(message: Message):
     )
 
 
-@dp.message_handler(commands=["show_meetup_program"])
+@dp.message_handler(IsListner(), commands=["show_meetup_program"])
 async def show_meetup_program(message: Message):
     program = get_meetup_program()
     if len(program):
@@ -47,21 +48,20 @@ async def show_meetup_program(message: Message):
         )
 
 
-@dp.message_handler(commands=["question"])
+@dp.message_handler(IsListner(), commands=["question"])
 async def send_question(message: Message):
     await SpeakerQuestion.question.set()
     await message.answer(
         "Напишите Ваш вопрос докладчику и отправьте сообщение.\nДля отмены отправки вопроса введите /cancel")
 
 
-@dp.message_handler(state=SpeakerQuestion.question)
+@dp.message_handler(IsListner(), state=SpeakerQuestion.question)
 async def process_name(message: Message, state: FSMContext):
     """
     Process question
     """
     async with state.proxy() as data:
         data['question'] = message.text
-
 
     current_speaker = get_current_speaker()
     add_question(current_speaker, data['question'])
@@ -73,8 +73,8 @@ async def process_name(message: Message, state: FSMContext):
     await message.reply("Спасибо! Ваш вопрос отправлен текущему докладчику!")
 
 
-@dp.message_handler(state='*', commands='cancel')
-@dp.message_handler(Text(equals='cancel', ignore_case=True), state='*')
+@dp.message_handler(IsListner(), state='*', commands='cancel')
+@dp.message_handler(IsListner(), Text(equals='cancel', ignore_case=True), state='*')
 async def cancel_handler(message: Message, state: FSMContext):
     """
     Allow user to cancel any action

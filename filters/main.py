@@ -2,7 +2,7 @@ from aiogram import Dispatcher
 from aiogram.dispatcher.filters import Filter
 from aiogram.types import Message
 
-from database.methods.other import is_admin, is_org, is_speaker
+from database.methods.other import is_admin, is_org, is_speaker, is_listner
 
 
 class IsAdmin(Filter):
@@ -24,6 +24,12 @@ class IsSpeaker(Filter):
 
     async def check(self, message: Message) -> bool:
         return is_speaker(message.from_user.id)
+
+class IsListner(Filter):
+    key = "is_listner"
+
+    async def check(self, message: Message) -> bool:
+        return is_listner(message.from_user.id)
 
 
 class NotAdmin(Filter):
