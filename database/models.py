@@ -13,8 +13,8 @@ class User(Database.BASE):
     speaker = Column(Integer, default=0)
     organizer = Column(Integer, default=0)
     session = relationship('Session', uselist=False, backref="USER", passive_deletes=True)
-    meetup = relationship('Meetup', uselist=False, backref="USER", passive_deletes=True)
-
+    lectures = relationship('Lecture', uselist=False, backref="USER", passive_deletes=True)
+    questions = relationship('Question', uselist=False, backref="USER", passive_deletes=True)
 
 class Session(Database.BASE):
     __tablename__ = 'SESSION'
@@ -27,8 +27,16 @@ class Session(Database.BASE):
 class Meetup(Database.BASE):
     __tablename__ = 'MEETUP'
     id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str]
+    is_active: Mapped[int]
+
+
+class Lecture(Database.BASE):
+    __tablename__ = 'LECTURE'
+    id: Mapped[int] = mapped_column(primary_key=True)
     speaker_id: Mapped[int] = mapped_column(ForeignKey("USER.id"))
-    theme: Mapped[str]
+    meetup_id:  Mapped[int] = mapped_column(ForeignKey("MEETUP.id"))
+    name: Mapped[str]
     is_active: Mapped[int]
 
 

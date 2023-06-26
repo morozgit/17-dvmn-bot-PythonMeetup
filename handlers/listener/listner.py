@@ -3,8 +3,8 @@ from aiogram.dispatcher.filters import Text
 from aiogram.dispatcher.filters.state import StatesGroup, State
 from aiogram.types import Message, ReplyKeyboardRemove
 
-from database.methods.create import create_user, add_question
-from database.methods.get import get_user_by_telegram_id, get_meetup_program, get_current_speaker
+from database.methods.create import add_question
+from database.methods.get import get_meetup_program, get_current_speaker, get_user_by_id
 from dispatcher import dp
 from filters.main import IsListner
 
@@ -22,7 +22,8 @@ async def organizer_start_cmd_handler(message: Message):
     await message.answer(
         f"Доступные команды бота:\n"
         f"/show_meetup_program - показать доступные мероприятия\n"
-        f"/question - отправить вопрос текущему докладчику"
+        f"/question - отправить вопрос текущему докладчику",
+        reply_markup=ReplyKeyboardRemove()
     )
 
 
@@ -33,11 +34,12 @@ async def show_meetup_program(message: Message):
         await message.answer(
             "Программа мероприятия:"
         )
-        for meetup in program:
-            member = await dp.bot.get_chat_member(message.chat.id, meetup.speaker_id)
+        for lecture in program:
+            speaker = get_user_by_id(lecture.speaker_id)
+            member = await dp.bot.get_chat_member(message.chat.id, speaker.telegram_id)
 
             await message.answer(
-                f"Докладчик: {member.user.full_name} Тема: {meetup.theme}"
+                f"Докладчик: @{member.user.username} Тема: {lecture.name}"
             )
     else:
         await message.answer(
@@ -60,11 +62,12 @@ async def process_name(message: Message, state: FSMContext):
     async with state.proxy() as data:
         data['question'] = message.text
 
-    current_speaker = get_current_speaker()
-    add_question(current_speaker, data['question'])
+    current_speaker_id = get_current_speaker()
+    current_speaker_tgid = get_user_by_id(current_speaker_id).telegram_id
+    add_question(current_speaker_id, data['question'])
     await state.finish()
     await message.bot.send_message(
-        current_speaker,
+        current_speaker_tgid,
         f"Получен вопрос от @{message.from_user.username}\n{data['question']}"
     )
     await message.reply("Спасибо! Ваш вопрос отправлен текущему докладчику!")

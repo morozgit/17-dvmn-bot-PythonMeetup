@@ -6,7 +6,7 @@ from aiogram.utils import executor
 from database import register_models
 from database.methods.get import get_users_with_sessions
 from db import BotDB
-from dispatcher import dp, bot
+from dispatcher import dp, bot, tgclient
 import handlers
 from filters import register_all_filters
 

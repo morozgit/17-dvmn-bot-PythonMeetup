@@ -1,5 +1,5 @@
 from database.main import Database
-from database.methods.get import get_user_by_telegram_id
+from database.methods.get import get_user_by_telegram_id, get_current_meetup
 from database.models import User
 
 
@@ -30,4 +30,11 @@ def update_session_status(telegram_id, enable) -> None:
     user = get_user_by_telegram_id(telegram_id)
     if user and user.session:
         user.session.enable = int(enable)
+    Database().session.commit()
+
+
+def set_current_meetup_state(state: int):
+    current_meetup = get_current_meetup()
+    if current_meetup:
+        current_meetup.is_active = state
     Database().session.commit()

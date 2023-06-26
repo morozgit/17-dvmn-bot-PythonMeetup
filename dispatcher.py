@@ -3,7 +3,9 @@ import os
 
 from aiogram import Bot, Dispatcher
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
+from aiogram.contrib.middlewares.logging import LoggingMiddleware
 from dotenv import load_dotenv
+from telethon import TelegramClient
 
 # Configure logging
 logging.basicConfig(
@@ -22,3 +24,7 @@ telegram_token = os.environ["TELEGRAM_TOKEN"]
 bot: Bot = Bot(token=telegram_token, parse_mode="HTML")
 storage = MemoryStorage()
 dp: Dispatcher = Dispatcher(bot, storage=storage)
+
+dp.middleware.setup(LoggingMiddleware())
+
+tgclient = TelegramClient('PyMeetup', "22453914", "17ba75ce10de1f270c97e502340e217f")

@@ -1,14 +1,21 @@
 from __future__ import annotations
 
-from sqlalchemy import exc
+from sqlalchemy import exc, and_
 
 from database.main import Database
-from database.models import User, Session, Meetup
+from database.models import User, Session, Meetup, Lecture
 
 
 def get_user_by_telegram_id(telegram_id: int) -> User | None:
     try:
         return Database().session.query(User).filter(User.telegram_id == telegram_id).one()
+    except exc.NoResultFound:
+        return None
+
+
+def get_user_by_id(id: int) -> User | None:
+    try:
+        return Database().session.query(User).filter(User.id == id).one()
     except exc.NoResultFound:
         return None
 
@@ -38,17 +45,40 @@ def get_sessions_enable_count(vip: bool) -> int:
 
 
 def get_meetup_program():
-    program = Database().session.query(
-        Meetup
-    ).where(Meetup.is_active == 1).all()
+    try:
+        current_meetup = Database().session.query(
+            Meetup
+        ).where(Meetup.is_active == 1).one()
 
-    return program
+        program = Database().session.query(
+            Lecture
+        ).where(Lecture.meetup_id == current_meetup.id).all()
+
+        return program
+    except exc.NoResultFound:
+        return []
+
+
+def get_current_meetup():
+    try:
+        current_meetup = Database().session.query(
+            Meetup
+        ).where(Meetup.is_active == 1).one()
+
+        return current_meetup
+    except exc.NoResultFound:
+        return []
+
 
 def get_current_speaker():
     try:
         current_meetup = Database().session.query(
             Meetup
         ).where(Meetup.is_active == 1).one()
-        return current_meetup.speaker_id
+
+        current_lecture = Database().session.query(
+            Lecture
+        ).where(and_(Lecture.is_active == 1, Lecture.meetup_id == current_meetup.id)).one()
+        return current_lecture.speaker_id
     except exc.NoResultFound:
         return None
