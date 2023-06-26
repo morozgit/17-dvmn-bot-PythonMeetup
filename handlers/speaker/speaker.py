@@ -8,7 +8,7 @@ import aiogram.utils.markdown as fmt
 from filters.main import IsSpeaker
 
 
-@dp.message_handler(IsSpeaker(), commands="start_speaker")
+@dp.message_handler(IsSpeaker(), commands="start")
 async def speaker_start_cmd_start(message: types.Message):
     button_registration = ReplyKeyboardMarkup(resize_keyboard=True).add(
         KeyboardButton('Подтвердить регистрацию', request_contact=True))

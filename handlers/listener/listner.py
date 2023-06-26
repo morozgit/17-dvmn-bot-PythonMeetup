@@ -16,9 +16,6 @@ class SpeakerQuestion(StatesGroup):
 
 @dp.message_handler(IsListner(), commands=['start'])
 async def organizer_start_cmd_handler(message: Message):
-    if not get_user_by_telegram_id(message.from_user.id):
-        create_user(message.from_user.id)
-
     await message.answer(
         f"Доброго времени суток {message.from_user.full_name} :) \nЯ - МитапБот, бот который может управлять митапами.\nЧего желаешь хозяин?"
     )
