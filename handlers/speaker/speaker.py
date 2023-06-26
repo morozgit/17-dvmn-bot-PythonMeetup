@@ -1,12 +1,18 @@
-from aiogram import types
-from aiogram.types import KeyboardButton, ReplyKeyboardMarkup, InlineKeyboardButton, InlineKeyboardMarkup
+import aiogram.utils.markdown as fmt
 from aiogram import Bot, Dispatcher, executor, types
 from aiogram.dispatcher.filters import Text
-from dispatcher import dp, bot
-import aiogram.utils.markdown as fmt
+from aiogram.dispatcher.filters.state import State, StatesGroup
+from aiogram.types import (InlineKeyboardButton, InlineKeyboardMarkup,
+                           KeyboardButton, ReplyKeyboardMarkup)
 
+from database.main import Database
+from database.models import Question
+from dispatcher import bot, dp
 from filters.main import IsSpeaker
 
+
+class StartSpeech(StatesGroup):
+    speech = State()
 
 @dp.message_handler(IsSpeaker(), commands="start")
 async def speaker_start_cmd_start(message: types.Message):
@@ -28,7 +34,10 @@ async def registration_speaker(message: types.Message):
 
 @dp.message_handler(IsSpeaker(), Text(equals="Начать доклад"))
 async def start_speech(message: types.Message):
-    await message.answer('Выступает {0} {1}'.format(message.from_user.first_name, message.from_user.last_name))
+    start_question = InlineKeyboardButton(text='Принимать вопросы', callback_data='Принимать вопросы')
+    keyboard = InlineKeyboardMarkup().row(start_question)
+    await message.answer('Выступает {0} {1}'.format(message.from_user.first_name, message.from_user.last_name),
+                         reply_markup=keyboard)
 
 
 @dp.message_handler(IsSpeaker(), Text(equals="Закончить доклад"))
@@ -36,16 +45,17 @@ async def end_speech(message: types.Message):
     await message.answer('Доклад закончен')
 
 
-# @dp.message_handler(IsSpeaker())
-# async def get_user_question(message: types.Message):
-#     answer_good = InlineKeyboardButton(text='✅', callback_data='✅')
-#     keyboard = InlineKeyboardMarkup().row(answer_good)
-#     await message.reply('Вопрос от слушателя', reply_markup=keyboard)
+@dp.callback_query_handler(Text(equals="Принимать вопросы"))
+async def get_user_question(query: types.CallbackQuery):
+    print('sdfsdf')
+    answer_good = InlineKeyboardButton(text='✅', callback_data='✅')
+    keyboard = InlineKeyboardMarkup().row(answer_good)
+    question_from_user = Database().session.query(Question).filter(Question.question).all()
+    print(question_from_user)
+    await query.message.reply(question_from_user, reply_markup=keyboard)
 
 
 @dp.callback_query_handler(Text(equals='✅'))
 async def push_answer_good(callback_query: types.CallbackQuery):
-    print('цвет')
     await bot.answer_callback_query(callback_query.id)
-    # await callback_query.message.edit_text(text='good', reply_markup=callback_query.message.reply_markup)
     await callback_query.message.edit_text(fmt.text(fmt.hstrikethrough(callback_query.message.text)))
