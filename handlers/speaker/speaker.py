@@ -9,7 +9,7 @@ from database.methods.create import create_user, add_question
 from filters.main import IsSpeaker
 
 
-@dp.message_handler(IsSpeaker(), commands="start_speaker")
+@dp.message_handler(IsSpeaker(), commands="start")
 async def speaker_start_cmd_start(message: types.Message):
     if not get_user_by_telegram_id(message.from_user.id):
         create_user(message.from_user.id)
